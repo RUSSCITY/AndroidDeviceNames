@@ -54,7 +54,7 @@ The above code queries a database included in the library based on [Google's mai
 Download
 --------
 
-Download [the latest AAR](https://repo1.maven.org/maven2/com/jaredrummler/android-device-names/2.0.0/android-device-names-2.0.0.aar) or grab via Gradle:
+Available via Gradle:
 
 ```groovy
 implementation 'com.github.martinfilipekcz:AndroidDeviceNames:2.0.1'
