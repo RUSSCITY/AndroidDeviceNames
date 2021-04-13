@@ -184,8 +184,7 @@ public class DeviceName {
     if (savedJson != null) {
       try {
         return new DeviceInfo(new JSONObject(savedJson));
-      } catch (JSONException e) {
-        e.printStackTrace();
+      } catch (JSONException ignored) {
       }
     }
 
@@ -203,8 +202,7 @@ public class DeviceName {
         editor.apply();
         return info;
       }
-    } catch (Exception e) {
-      e.printStackTrace();
+    } catch (Exception ignored) {
     }
 
     if (codename.equals(Build.DEVICE) && Build.MODEL.equals(model)) {
@@ -315,13 +313,7 @@ public class DeviceName {
         } catch (Exception e) {
           error = e;
         }
-        handler.post(new Runnable() {
-
-          @Override
-          public void run() {
-            callback.onFinished(deviceInfo, error);
-          }
-        });
+        handler.post(() -> callback.onFinished(deviceInfo, error));
       }
     }
   }
