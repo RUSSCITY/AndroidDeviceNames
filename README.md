@@ -57,7 +57,7 @@ Download
 Available via Gradle:
 
 ```groovy
-implementation 'com.github.martinfilipekcz:AndroidDeviceNames:2.0.1'
+implementation 'com.github.martinfilipekcz:AndroidDeviceNames:2.0.2'
 ```
 
 
