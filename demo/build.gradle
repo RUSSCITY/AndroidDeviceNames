@@ -4,6 +4,8 @@ android {
     compileSdkVersion buildConfig.compileSdk
     buildToolsVersion buildConfig.buildTools
 
+    namespace 'com.jaredrummler.android.devicenames'
+
     defaultConfig {
         applicationId "com.jaredrummler.android.devicenames"
         minSdkVersion buildConfig.minSdk
@@ -11,6 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false

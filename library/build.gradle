@@ -1,9 +1,10 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion buildConfig.compileSdk
     buildToolsVersion buildConfig.buildTools
+
+    namespace 'com.jaredrummler.android.device'
 
     defaultConfig {
         minSdkVersion buildConfig.minSdk
@@ -23,5 +24,3 @@ android {
 dependencies {
     implementation deps.androidx.annotations
 }
-
-apply from: rootProject.file('gradle/maven-push.gradle')
