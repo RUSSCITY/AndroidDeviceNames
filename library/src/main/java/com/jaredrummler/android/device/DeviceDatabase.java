@@ -35,12 +35,22 @@ public class DeviceDatabase extends SQLiteOpenHelper {
   private final Context context;
 
   @SuppressWarnings("WeakerAccess")
-  public DeviceDatabase(Context context) {
+  public DeviceDatabase(Context context, boolean refresh) {
     super(context, NAME, null, VERSION);
     this.context = context.getApplicationContext();
     this.file = context.getDatabasePath(NAME);
     if (!file.exists()) {
       create();
+    }else if(refresh){
+      try {
+        if (file.exists()) {
+          if (context.deleteDatabase(NAME) || file.delete() || !file.exists()) {
+            create();
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
   }
 
@@ -95,25 +105,26 @@ public class DeviceDatabase extends SQLiteOpenHelper {
   public DeviceInfo queryToDevice(@Nullable String codename, @Nullable String model) {
     SQLiteDatabase database = getReadableDatabase();
 
-    String[] columns = new String[] { COLUMN_NAME, COLUMN_CODENAME, COLUMN_MODEL };
+    String[] columns = new String[]{COLUMN_NAME, COLUMN_CODENAME, COLUMN_MODEL};
     String selection;
     String[] selectionArgs;
 
     if (!TextUtils.isEmpty(codename) && !TextUtils.isEmpty(model)) {
-      selection = COLUMN_CODENAME + " LIKE ? OR " + COLUMN_MODEL + " LIKE ?";
-      selectionArgs = new String[] { codename, model };
+      // MY MODIFICATIONS: FIRST TRY WITH AND
+      selection = COLUMN_CODENAME + " LIKE ? AND " + COLUMN_MODEL + " LIKE ?";
+      selectionArgs = new String[]{codename, model};
     } else if (!TextUtils.isEmpty(codename)) {
       selection = COLUMN_CODENAME + " LIKE ?";
-      selectionArgs = new String[] { codename };
+      selectionArgs = new String[]{codename};
     } else if (TextUtils.isEmpty(model)) {
       selection = COLUMN_MODEL + " LIKE ?";
-      selectionArgs = new String[] { model };
+      selectionArgs = new String[]{model};
     } else {
       return null;
     }
 
     Cursor cursor =
-        database.query(TABLE_DEVICES, columns, selection, selectionArgs, null, null, null);
+            database.query(TABLE_DEVICES, columns, selection, selectionArgs, null, null, null);
 
     DeviceInfo deviceInfo = null;
 
@@ -122,6 +133,19 @@ public class DeviceDatabase extends SQLiteOpenHelper {
       codename = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CODENAME));
       model = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MODEL));
       deviceInfo = new DeviceInfo(name, codename, model);
+    } else if (!TextUtils.isEmpty(codename) && !TextUtils.isEmpty(model)) {
+      // MY MODIFICATIONS: SECOND TRY WITH OR
+      selection = COLUMN_CODENAME + " LIKE ? OR " + COLUMN_MODEL + " LIKE ?";
+      selectionArgs = new String[]{codename, model};
+      cursor =
+              database.query(TABLE_DEVICES, columns, selection, selectionArgs, null, null, null);
+
+      if (cursor.moveToFirst()) {
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
+        codename = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CODENAME));
+        model = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MODEL));
+        deviceInfo = new DeviceInfo(name, codename, model);
+      }
     }
 
     close(cursor);
