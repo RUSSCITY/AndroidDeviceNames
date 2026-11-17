@@ -1,6 +1,6 @@
 # Android Device Names
 
-[![JitPack](https://jitpack.io/v/martinfilipekcz/AndroidDeviceNames.svg)](https://jitpack.io/#martinfilipekcz/AndroidDeviceNames) [![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE.txt) [![API](https://img.shields.io/badge/API-7%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=7) <a href="http://www.methodscount.com/?lib=com.jaredrummler%3Aandroid-device-names%3A2.0.0" target="_blank"><img src="https://img.shields.io/badge/method count-86-e91e63.svg"></img></a> <a href="http://www.methodscount.com/?lib=com.jaredrummler%3Aandroid-device-names%3A2.0.0" target="_blank"><img src="https://img.shields.io/badge/size-34 KB-e91e63.svg"></img></a> [![Twitter Follow](https://img.shields.io/twitter/follow/jaredrummler.svg?style=social)](https://twitter.com/jaredrummler)
+[![JitPack](https://jitpack.io/v/RUSSCITY/AndroidDeviceNames.svg)](https://jitpack.io/#RUSSCITY/AndroidDeviceNames) [![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE.txt) [![API](https://img.shields.io/badge/API-7%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=7) <a href="http://www.methodscount.com/?lib=com.jaredrummler%3Aandroid-device-names%3A2.0.0" target="_blank"><img src="https://img.shields.io/badge/method count-86-e91e63.svg"></img></a> <a href="http://www.methodscount.com/?lib=com.jaredrummler%3Aandroid-device-names%3A2.0.0" target="_blank"><img src="https://img.shields.io/badge/size-34 KB-e91e63.svg"></img></a> [![Twitter Follow](https://img.shields.io/twitter/follow/jaredrummler.svg?style=social)](https://twitter.com/jaredrummler)
 
 A small Android library to get the market name of an Android device.
 
@@ -49,7 +49,7 @@ DeviceName.with(context).request(new DeviceName.Callback() {
  ```
 
 The above code queries a database included in the library based on [Google's maintained list
-](https://support.google.com/googleplay/answer/1727131?hl=en). This supports *over 27,000* devices.
+](https://support.google.com/googleplay/answer/1727131?hl=en). This supports *over 54,000* devices.
 
 Download
 --------
@@ -57,7 +57,7 @@ Download
 Available via Gradle:
 
 ```groovy
-implementation 'com.github.martinfilipekcz:AndroidDeviceNames:2.1.4'
+implementation 'com.github.RUSSCITY:AndroidDeviceNames:2.1.5'
 ```
 
 
