@@ -57,7 +57,7 @@ Download
 Available via Gradle:
 
 ```groovy
-implementation 'com.github.RUSSCITY:AndroidDeviceNames:2.1.5'
+implementation 'com.github.RUSSCITY:AndroidDeviceNames:2.1.6'
 ```
 
 

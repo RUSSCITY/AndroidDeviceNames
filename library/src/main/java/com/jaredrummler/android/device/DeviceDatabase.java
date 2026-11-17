@@ -29,7 +29,11 @@ public class DeviceDatabase extends SQLiteOpenHelper {
   private static final String COLUMN_MODEL = "model";
 
   private static final String NAME = "android-devices.db";
-  private static final int VERSION = 1;
+  /**
+   * Version of the bundled database asset. Increase this whenever the asset in
+   * {@code src/main/assets} is updated, so existing installations replace their copy.
+   */
+  private static final int VERSION = 2;
 
   private final File file;
   private final Context context;
@@ -39,18 +43,10 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     super(context, NAME, null, VERSION);
     this.context = context.getApplicationContext();
     this.file = context.getDatabasePath(NAME);
-    if (!file.exists()) {
+    // The version check happens here, before SQLiteOpenHelper opens the file, because replacing
+    // the database from inside onUpgrade() is not possible (the helper is mid-open there).
+    if (refresh || !file.exists() || getInstalledVersion() != VERSION) {
       create();
-    }else if(refresh){
-      try {
-        if (file.exists()) {
-          if (context.deleteDatabase(NAME) || file.delete() || !file.exists()) {
-            create();
-          }
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
     }
   }
 
@@ -161,34 +157,73 @@ public class DeviceDatabase extends SQLiteOpenHelper {
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    if (newVersion > oldVersion) {
-      if (context.deleteDatabase(NAME) || file.delete() || !file.exists()) {
-        create();
+    // no-op: outdated databases are replaced in the constructor before they are opened.
+  }
+
+  @Override
+  public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    // no-op: the default implementation throws; the constructor already replaced the file.
+  }
+
+  /** @return the user_version of the installed database file, or -1 if it cannot be read. */
+  private int getInstalledVersion() {
+    SQLiteDatabase db = null;
+    try {
+      db = SQLiteDatabase.openDatabase(file.getPath(), null, SQLiteDatabase.OPEN_READONLY);
+      return db.getVersion();
+    } catch (Exception e) {
+      return -1;
+    } finally {
+      if (db != null) {
+        db.close();
       }
     }
   }
 
+  /** Replace the installed database with the bundled asset and stamp it with {@link #VERSION}. */
   private void create() throws SQLException {
     try {
-      getReadableDatabase();    // Create an empty database that we will overwrite.
-      close();                  // Close the empty database
-      transferDatabaseAsset();  // Copy the database from assets to the application's database dir
-    } catch (IOException e) {
+      close();                       // Close a connection this helper may still hold
+      context.deleteDatabase(NAME);  // Also removes -journal/-wal/-shm files of the old copy
+      File dir = file.getParentFile();
+      if (dir != null && !dir.exists() && !dir.mkdirs()) {
+        throw new IOException("Could not create " + dir);
+      }
+      transferDatabaseAsset();
+      SQLiteDatabase db = SQLiteDatabase.openDatabase(file.getPath(), null,
+          SQLiteDatabase.OPEN_READWRITE);
+      try {
+        db.setVersion(VERSION);
+      } finally {
+        db.close();
+      }
+    } catch (Exception e) {
       throw new SQLException("Error creating " + NAME + " database", e);
     }
   }
 
   private void transferDatabaseAsset() throws IOException {
-    InputStream input = context.getAssets().open(NAME);
-    OutputStream output = new FileOutputStream(file);
-    byte[] buffer = new byte[2048];
-    int length;
-    while ((length = input.read(buffer)) > 0) {
-      output.write(buffer, 0, length);
+    // Copy to a temporary file first so an interrupted copy never leaves a truncated database.
+    File tmp = new File(file.getPath() + ".tmp");
+    InputStream input = null;
+    OutputStream output = null;
+    try {
+      input = context.getAssets().open(NAME);
+      output = new FileOutputStream(tmp);
+      byte[] buffer = new byte[8192];
+      int length;
+      while ((length = input.read(buffer)) > 0) {
+        output.write(buffer, 0, length);
+      }
+      output.flush();
+    } finally {
+      close(output);
+      close(input);
     }
-    output.flush();
-    close(output);
-    close(input);
+    if (!tmp.renameTo(file)) {
+      tmp.delete();
+      throw new IOException("Could not move database to " + file);
+    }
   }
 
   private void close(Closeable closeable) {
